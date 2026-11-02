@@ -898,6 +898,15 @@ select.locked,select.locked:disabled {
             box-shadow: 0 2px 8px rgba(27,83,171,.25); }
         .ve-btn:hover { background: #133672; }
         .ve-btn-clair { background: #eef2f8; color: #133672; }
+        .ve-cache { display: none !important; }
+        .ve-rubriques-boite { position: relative; }
+        .ve-rubriques-menu { position: absolute; top: calc(100% + 6px); left: 0; z-index: 50;
+            background: #fff; border: 1px solid #c8d9ee; border-radius: 10px; padding: 12px 14px;
+            box-shadow: 0 10px 28px rgba(13,43,94,.18); min-width: 300px; text-align: left; }
+        .ve-rubriques-menu .titre { font-size: .78rem; font-weight: 700; color: #5b7399;
+            text-transform: uppercase; letter-spacing: .04em; margin-bottom: 6px; }
+        .ve-rubriques-menu label { display: flex; flex-direction: row; align-items: center; gap: 8px;
+            font-size: .85rem; color: #133672; font-weight: 500; padding: 3px 0; cursor: pointer; }
         .ve-btn-clair:hover { background: #dfe8f4; }
         .ve-chart { position: relative; height: 380px; }
         .ve-chart.compact { height: 300px; }
@@ -1041,6 +1050,10 @@ const __AGENCES = {"0-13": {"DIVRY": {"exercice": 2026, "dr": "DIVRY", "debut": 
                 <button class="ve-btn" id="ve-appliquer">Appliquer</button>
                 <button class="ve-btn ve-btn-clair" id="ve-dernier">Dernier mois traité</button>
                 <button class="ve-btn ve-btn-clair" id="ve-imprimer" title="Imprimer la vue affichée">🖨 Imprimer</button>
+                <span class="ve-rubriques-boite">
+                    <button class="ve-btn ve-btn-clair" id="ve-rubriques-btn" title="Choisir les rubriques affichées">🗂 Rubriques</button>
+                    <div class="ve-rubriques-menu" id="ve-rubriques-menu" hidden></div>
+                </span>
                 <span class="ve-note" id="ve-periode-note" style="margin:0;align-self:center"></span>
             </div>
         </div>
@@ -1702,6 +1715,39 @@ function topAgences() {
 
 charger();
 document.getElementById('ve-imprimer').addEventListener('click', () => window.print());
+
+// Rubriques affichées / masquées — confort de lecture et d'impression, sans effet sur les données.
+function rubriques() {
+    const items = [];
+    document.querySelectorAll('.ve-panel').forEach(p => {
+        const h = p.querySelector('h2');
+        if (!h) return;
+        items.push([p, h.id === 've-titre-mois' ? 'Synthèse de la période' : h.textContent.trim()]);
+    });
+    const bulle = document.getElementById('ve-synthese-attente');
+    if (bulle) items.push([bulle, 'Rapports en attente de réception']);
+    return items;
+}
+function construireMenuRubriques() {
+    const menu = document.getElementById('ve-rubriques-menu');
+    menu.innerHTML = '<div class="titre">Rubriques affichées</div>';
+    rubriques().forEach(([el, lib]) => {
+        const l = document.createElement('label');
+        const c = document.createElement('input');
+        c.type = 'checkbox'; c.checked = !el.classList.contains('ve-cache');
+        c.onchange = () => el.classList.toggle('ve-cache', !c.checked);
+        l.appendChild(c); l.appendChild(document.createTextNode(' ' + lib));
+        menu.appendChild(l);
+    });
+}
+document.getElementById('ve-rubriques-btn').addEventListener('click', (e) => {
+    e.stopPropagation();
+    const menu = document.getElementById('ve-rubriques-menu');
+    if (menu.hidden) construireMenuRubriques();
+    menu.hidden = !menu.hidden;
+});
+document.getElementById('ve-rubriques-menu').addEventListener('click', e => e.stopPropagation());
+document.addEventListener('click', () => { document.getElementById('ve-rubriques-menu').hidden = true; });
 </script>
 </body>
 </html>
