@@ -237,17 +237,20 @@ const VILLES = { DRD:[9.70,4.05], DIVRY:[11.52,3.87] };
 
 function dessinerCarte() {
   const svg = document.getElementById('carte'); svg.innerHTML = '';
+  let selPath = null;
   D.regions.forEach(r => {
     const p = document.createElementNS('http://www.w3.org/2000/svg', 'path');
     p.setAttribute('d', path(r.coords, r.type));
     p.setAttribute('class', 'region' + (drSel === r.dr ? ' sel' : ''));
     p.setAttribute('fill', fillZone(r.dr));
-    p.setAttribute('stroke', drSel === r.dr ? ORANGE : GRISB);
+    p.setAttribute('stroke', drSel === r.dr ? couleur(valDr(r.dr)) : GRISB);
+    if (drSel === r.dr) selPath = p;
     p.addEventListener('click', () => { drSel = (drSel === r.dr ? null : r.dr); refresh(); });
     const t = document.createElementNS('http://www.w3.org/2000/svg', 'title');
     t.textContent = r.dr + ' - ' + r.nom; p.appendChild(t);
     svg.appendChild(p);
   });
+  if (selPath) svg.appendChild(selPath);
   D.regions.forEach(r => {
     const c = CENTRES[r.dr];
     const tx = document.createElementNS('http://www.w3.org/2000/svg', 'text');
@@ -266,7 +269,7 @@ function dessinerCarte() {
     ci.setAttribute('cx', px(c[0])); ci.setAttribute('cy', py(c[1])); ci.setAttribute('r', 10);
     ci.setAttribute('class', 'ville' + (drSel === dr ? ' sel' : ''));
     ci.setAttribute('fill', drSel === dr ? pastel(couleur(valDr(dr))) : NEUTRE);
-    ci.setAttribute('stroke', drSel === dr ? ORANGE : GRISB); ci.setAttribute('stroke-width', drSel === dr ? 3 : 1.5);
+    ci.setAttribute('stroke', drSel === dr ? couleur(valDr(dr)) : GRISB); ci.setAttribute('stroke-width', drSel === dr ? 3 : 1.5);
     ci.addEventListener('click', () => { drSel = (drSel === dr ? null : dr); refresh(); });
     const t = document.createElementNS('http://www.w3.org/2000/svg', 'title');
     t.textContent = dr; ci.appendChild(t);
@@ -282,7 +285,7 @@ function dessinerCarte() {
     lg.innerHTML = '<div class="leg-item"><span class="c" style="background:' + VERT + '"></span>Stock en baisse</div><div class="leg-item"><span class="c" style="background:' + ORANGE + '"></span>Hausse moderee (0 a +5 %)</div><div class="leg-item"><span class="c" style="background:' + ROUGE + '"></span>Hausse au-dela de +5 %</div>';
   else
     lg.innerHTML = '<div class="leg-item"><span class="c" style="background:' + VERT + '"></span>90 % et plus de la cible</div><div class="leg-item"><span class="c" style="background:' + ORANGE + '"></span>65 a 90 % de la cible</div><div class="leg-item"><span class="c" style="background:' + ROUGE + '"></span>Sous 65 % de la cible</div>';
-  lg.innerHTML += '<div style="margin-top:3px;color:#7389A0">Sigle aux couleurs de la realisation.<br>Zone selectionnee : contour orange.</div>';
+  lg.innerHTML += '<div style="margin-top:3px;color:#7389A0">Sigle aux couleurs de la realisation.<br>Zone selectionnee : contour complet<br>a la couleur de sa realisation.</div>';
 }
 
 // ---------- panneau ----------
