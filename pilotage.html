@@ -17,7 +17,7 @@ header { background:linear-gradient(100deg,#055380,#061A40); color:#fff; padding
 header h1 { font-size:18px; }
 header .sous { color:#9CCDE8; font-size:12.5px; margin-top:3px; }
 header .dcm { text-align:right; color:#BFE0F2; font-weight:700; font-size:11px; line-height:1.5; }
-.selecteurs { background:#fff; padding:6px 22px; border-bottom:1px solid #DCE8F2; position:sticky; top:0; z-index:60; box-shadow:0 2px 8px rgba(6,26,64,.10); }
+.selecteurs { background:#9CCDE8; padding:6px 22px; border-bottom:1px solid #6FA8CC; position:sticky; top:0; z-index:60; box-shadow:0 2px 8px rgba(6,26,64,.10); }
 #fermerMenu { display:none; }
 @media (max-width:1099px) {
   #burger { display:block; }
@@ -26,9 +26,9 @@ header .dcm { text-align:right; color:#BFE0F2; font-weight:700; font-size:11px; 
   .selecteurs.ouvert #fermerMenu { display:block; width:100%; margin-bottom:8px; padding:9px; border:1px solid #BCCFDE; border-radius:8px; background:#055380; color:#fff; font-size:13px; font-weight:700; cursor:pointer; }
 }
 .ligne { display:flex; align-items:center; gap:5px; flex-wrap:wrap; padding:3px 0; }
-.ligne .lab { font-size:11px; font-weight:700; color:#5B7389; width:150px; text-transform:uppercase; letter-spacing:.04em; }
-.btn { border:1px solid #BCCFDE; background:#F4F9FD; color:#0A2540; border-radius:7px; padding:4px 10px; font-size:12px; cursor:pointer; }
-.btn.actif { background:#055380; color:#fff; border-color:#055380; font-weight:700; }
+.ligne .lab { font-size:11px; font-weight:700; color:#063A5E; width:150px; text-transform:uppercase; letter-spacing:.04em; }
+.btn { border:1px solid #7FB0D0; background:#F4F9FD; color:#0A2540; border-radius:7px; padding:4px 10px; font-size:12px; cursor:pointer; }
+.btn.actif { background:#E67E22; color:#fff; border-color:#C9661A; font-weight:700; }
 .btn.off { opacity:.45; cursor:not-allowed; }
 #layout { display:grid; grid-template-columns:3fr 2fr 1.15fr; gap:10px; padding:10px 14px; min-height:0; overflow:hidden; }
 .carte-box { background:#fff; border-radius:12px; padding:8px; position:relative; min-width:0; display:flex; flex-direction:column; }
@@ -42,7 +42,7 @@ header .dcm { text-align:right; color:#BFE0F2; font-weight:700; font-size:11px; 
   .carte-box { height:520px; margin-bottom:10px; }
   .panneau { max-height:none; margin-bottom:10px; }
 }
-svg .region { stroke-width:1.6; cursor:pointer; transition:opacity .15s; }
+svg .region { stroke-width:1; cursor:pointer; transition:opacity .15s; }
 svg .region:hover { opacity:.8; }
 svg .region.sel { stroke-width:3.2; }
 svg .ville { cursor:pointer; }
@@ -155,7 +155,7 @@ function fmtMds(v) { return (v/1e9).toLocaleString('fr-FR', {minimumFractionDigi
 function fp(v, signe) { if (v === null || v === undefined) return 'N/D';
   return (signe && v > 0 ? '+' : '') + v.toLocaleString('fr-FR', {minimumFractionDigits:1, maximumFractionDigits:1}) + ' %'; }
 
-const VERT = '#007C54', ORANGE = '#E67E22', ROUGE = '#D62828', NEUTRE = '#E4E9EF', ND = '#8FA0B2';
+const VERT = '#007C54', ORANGE = '#E67E22', ROUGE = '#D62828', NEUTRE = '#EEF2F6', ND = '#8FA0B2', GRISB = '#AEBBC7';
 function couleur(v) {
   if (v === null || v === undefined) return ND;
   if (kpi.inverse) return v <= 0 ? VERT : (v <= 5 ? ORANGE : ROUGE);
@@ -242,7 +242,7 @@ function dessinerCarte() {
     p.setAttribute('d', path(r.coords, r.type));
     p.setAttribute('class', 'region' + (drSel === r.dr ? ' sel' : ''));
     p.setAttribute('fill', fillZone(r.dr));
-    p.setAttribute('stroke', couleur(valDr(r.dr)));
+    p.setAttribute('stroke', drSel === r.dr ? ORANGE : GRISB);
     p.addEventListener('click', () => { drSel = (drSel === r.dr ? null : r.dr); refresh(); });
     const t = document.createElementNS('http://www.w3.org/2000/svg', 'title');
     t.textContent = r.dr + ' - ' + r.nom; p.appendChild(t);
@@ -266,7 +266,7 @@ function dessinerCarte() {
     ci.setAttribute('cx', px(c[0])); ci.setAttribute('cy', py(c[1])); ci.setAttribute('r', 10);
     ci.setAttribute('class', 'ville' + (drSel === dr ? ' sel' : ''));
     ci.setAttribute('fill', drSel === dr ? pastel(couleur(valDr(dr))) : NEUTRE);
-    ci.setAttribute('stroke', couleur(valDr(dr))); ci.setAttribute('stroke-width', drSel === dr ? 3 : 2);
+    ci.setAttribute('stroke', drSel === dr ? ORANGE : GRISB); ci.setAttribute('stroke-width', drSel === dr ? 3 : 1.5);
     ci.addEventListener('click', () => { drSel = (drSel === dr ? null : dr); refresh(); });
     const t = document.createElementNS('http://www.w3.org/2000/svg', 'title');
     t.textContent = dr; ci.appendChild(t);
@@ -282,7 +282,7 @@ function dessinerCarte() {
     lg.innerHTML = '<div class="leg-item"><span class="c" style="background:' + VERT + '"></span>Stock en baisse</div><div class="leg-item"><span class="c" style="background:' + ORANGE + '"></span>Hausse moderee (0 a +5 %)</div><div class="leg-item"><span class="c" style="background:' + ROUGE + '"></span>Hausse au-dela de +5 %</div>';
   else
     lg.innerHTML = '<div class="leg-item"><span class="c" style="background:' + VERT + '"></span>90 % et plus de la cible</div><div class="leg-item"><span class="c" style="background:' + ORANGE + '"></span>65 a 90 % de la cible</div><div class="leg-item"><span class="c" style="background:' + ROUGE + '"></span>Sous 65 % de la cible</div>';
-  lg.innerHTML += '<div style="margin-top:3px;color:#7389A0">Sigle et contour aux couleurs<br>de la realisation de la zone.</div>';
+  lg.innerHTML += '<div style="margin-top:3px;color:#7389A0">Sigle aux couleurs de la realisation.<br>Zone selectionnee : contour orange.</div>';
 }
 
 // ---------- panneau ----------
